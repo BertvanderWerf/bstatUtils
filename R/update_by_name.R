@@ -12,6 +12,8 @@
 #' @examples
 #' update_by_name(list(a=1, b=2), list(b=5), c('a', 'b'))
 #' update_by_name(NULL, c(a=3, b=4), c('a', 'b'))
+#'
+#' @export
 update_by_name <- function(old_list, new_list, param_names) {
   # Handle NULL new_list: return old_list as list
   if (is.null(new_list)) {

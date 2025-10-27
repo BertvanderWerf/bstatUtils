@@ -23,4 +23,5 @@ If \code{values} is shorter than \code{n}, elements are assigned in a circular/r
 \examples{
 assign_list_circular(c(1, 2), n = 5)
 assign_list_circular(c("a", "b", "c"), n = 4, names = c("A", "B", "C", "D"))
+
 }

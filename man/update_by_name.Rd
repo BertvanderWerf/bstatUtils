@@ -24,4 +24,5 @@ supplied parameter names.
 \examples{
 update_by_name(list(a=1, b=2), list(b=5), c('a', 'b'))
 update_by_name(NULL, c(a=3, b=4), c('a', 'b'))
+
 }

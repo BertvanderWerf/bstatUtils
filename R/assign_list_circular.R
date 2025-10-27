@@ -11,6 +11,8 @@
 #' @examples
 #' assign_list_circular(c(1, 2), n = 5)
 #' assign_list_circular(c("a", "b", "c"), n = 4, names = c("A", "B", "C", "D"))
+#'
+#' @export
 assign_list_circular <- function(values, n, names = NULL) {
   if (!is.numeric(n) || length(n) != 1 || n < 0 || n != as.integer(n)) {
     stop("Parameter 'n' must be a single non-negative integer.")
