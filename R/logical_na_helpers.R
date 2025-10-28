@@ -5,6 +5,7 @@
 #' @param x A logical vector.
 #'
 #' @return A logical vector where any NA is coerced to FALSE.
+#' @export
 #' @examples
 #' na_false(c(NA, FALSE, TRUE))
 na_false <- function(x) {
@@ -22,6 +23,7 @@ na_false <- function(x) {
 #' @param x A logical vector.
 #'
 #' @return A logical vector where any NA is coerced to TRUE.
+#' @export
 #' @examples
 #' na_true(c(NA, FALSE, TRUE))
 na_true <- function(x) {
