@@ -2,31 +2,20 @@
 % Please edit documentation in R/inverse_function_table.R
 \name{add_inverse_function}
 \alias{add_inverse_function}
-\title{Add Inverse Function Mapping}
+\title{Add Inverse Function Mapping (Mutable Table)}
 \usage{
-add_inverse_function(
-  fname,
-  inv_fname,
-  table = inverse_function_table,
-  env = globalenv()
-)
+add_inverse_function(fname, inv_fname, table = inverse_function_table)
 }
 \arguments{
 \item{fname}{Character. Name of the function.}
 
 \item{inv_fname}{Character. Name of the inverse function.}
 
-\item{table}{Data frame. Registry of function-inverse pairs.}
-
-\item{env}{Environment to assign updated table.}
+\item{table}{Data frame. Registry of function-inverse pairs. (default = inverse_function_table)}
 }
 \value{
-Updated table invisibly.
+The updated table, invisibly.
 }
 \description{
-Safely adds a function/inverse pair to the inverse function table.
-}
-\examples{
-add_inverse_function("tan", "atan", env = globalenv())
-
+Add Inverse Function Mapping (Mutable Table)
 }

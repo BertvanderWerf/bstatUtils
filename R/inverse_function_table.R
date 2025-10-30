@@ -48,13 +48,13 @@ inverse_function_table <- data.frame(
 #' Retrieves the inverse function name for a given function name, searching both directions.
 #'
 #' @param fname Character. Function name.
+#' @param table Data frame. Registry of function-inverse pairs.
 #' @return Character vector of the inverse function name(s), or NULL if not found.
 #' @examples
 #' get_inverse_function("log")
 #'
 #' @export
-get_inverse_function <- function(fname, table = NULL) {
-  if (is.null(table)) table <- get("inverse_function_table", envir = parent.frame())
+get_inverse_function <- function(fname, table=inverse_function_table) {
   idx <- which(fname == table$function_name)
   if (length(idx) > 0) return(table$inverse_function_name[idx])
   idx <- which(fname == table$inverse_function_name)
@@ -62,37 +62,29 @@ get_inverse_function <- function(fname, table = NULL) {
   NULL
 }
 
-#' Add Inverse Function Mapping
-#'
-#' Safely adds a function/inverse pair to the inverse function table.
+
+#' Add Inverse Function Mapping (Mutable Table)
 #'
 #' @param fname Character. Name of the function.
 #' @param inv_fname Character. Name of the inverse function.
-#' @param table Data frame. Registry of function-inverse pairs.
-#' @param env Environment to assign updated table.
-#' @return Updated table invisibly.
-#' @examples
-#' add_inverse_function("tan", "atan", env = globalenv())
-#'
+#' @param table Data frame. Registry of function-inverse pairs. (default = inverse_function_table)
+#' @return The updated table, invisibly.
 #' @export
 add_inverse_function <- function(fname, inv_fname,
-                                 table = inverse_function_table,
-                                 env = globalenv()) {
+                                 table = inverse_function_table) {
   # Prevent duplication of entries
   if (fname %in% c(table$function_name, table$inverse_function_name) ||
       inv_fname %in% c(table$function_name, table$inverse_function_name))
     stop("Function or inverse already present in table.", call. = FALSE)
 
-  # Check function exists in current environment and is a function of one argument
   for (f in c(fname, inv_fname)) {
     obj <- tryCatch(get(f, mode = "function", inherits = TRUE), error = function(e) NULL)
     if (is.null(obj) || !is.function(obj))
       stop(sprintf("'%s' must be an accessible R function.", f), call. = FALSE)
   }
 
-  # Add to table (assign by reference by default, or explicit env)
   new_row <- data.frame(function_name = fname, inverse_function_name = inv_fname, stringsAsFactors = FALSE)
-  table <- rbind(table, new_row)
-  assign("inverse_function_table", table, envir = env)
-  invisible(table)
+  updated_table <- rbind(table, new_row)
+  invisible(updated_table)
 }
+

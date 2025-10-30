@@ -6,19 +6,18 @@ test_that("reciprocal and sqr work", {
 })
 
 test_that("get_inverse_function works in both directions", {
-  expect_equal(get_inverse_function("log"), "exp")
-  expect_equal(get_inverse_function("exp"), "log")
-  expect_equal(get_inverse_function("reciprocal"), "reciprocal")
-  expect_null(get_inverse_function("nonexistent"))
+  tbl <- inverse_function_table
+  expect_equal(get_inverse_function("log",  table = tbl), "exp")
+  expect_equal(get_inverse_function("exp",  table = tbl), "log")
+  expect_equal(get_inverse_function("reciprocal",  table = tbl), "reciprocal")
+  expect_null(get_inverse_function("nonexistent",  table = tbl))
 })
 
-# test_that("add_inverse_function properly adds", {
-#   old <- inverse_function_table
-#   add_inverse_function("tan", "atan", env = globalenv())
-#   expect_equal(get_inverse_function("tan", inverse_function_table), "atan")
-#   # restore for further tests
-#   assign("inverse_function_table", old, envir = globalenv())
-# })
+test_that("add_inverse_function properly adds", {
+  tbl <- inverse_function_table
+  tbl <- add_inverse_function("tan", "atan", table = tbl)
+  expect_equal(get_inverse_function("tan", tbl), "atan")
+})
 
 test_that("add_inverse_function fails for wrong function", {
   expect_error(add_inverse_function("notafunc", "exp", env = globalenv()))

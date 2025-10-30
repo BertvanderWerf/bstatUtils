@@ -4,10 +4,12 @@
 \alias{get_inverse_function}
 \title{Get the Inverse Function Name}
 \usage{
-get_inverse_function(fname, table = NULL)
+get_inverse_function(fname, table = inverse_function_table)
 }
 \arguments{
 \item{fname}{Character. Function name.}
+
+\item{table}{Data frame. Registry of function-inverse pairs.}
 }
 \value{
 Character vector of the inverse function name(s), or NULL if not found.
