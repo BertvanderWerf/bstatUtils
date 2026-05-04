@@ -17,6 +17,7 @@
 #'   \code{"one.sided"}. For one-sided, direction is determined by comparing observed
 #'   statistic to the median permutation statistic.
 #' @param na_rm Logical; if \code{TRUE}, remove missing values before calculation. Default: \code{FALSE}.
+#' @param ... additional parameters for test_func
 #'
 #' @returns
 #' A list (invisibly) with three elements:
@@ -54,7 +55,8 @@ randomization_test <- function(
     test_func,
     n_perm = 9999,
     alternative = c("two.sided", "one.sided"),
-    na_rm = FALSE
+    na_rm = FALSE,
+    ...
 ) {
   # Capture input names for reporting
   y_name <- as.character(deparse(substitute(y)))
@@ -84,7 +86,7 @@ randomization_test <- function(
   }
 
   # Compute observed test statistic
-  htest_obs <- test_func(y, group)
+  htest_obs <- test_func(y, group, ...)
 
   # Verify output is htest class
   if (!inherits(htest_obs, "htest")) {
@@ -105,7 +107,7 @@ randomization_test <- function(
     function(i) {
       # Suppress warnings/messages/errors; return NA on failure
       result <- bstatErr::catch_conditions(
-        test_func(y, sample(group))$statistic[1],
+        test_func(y, sample(group), ...)$statistic[1],
         default = NA_real_
       )
       result$value

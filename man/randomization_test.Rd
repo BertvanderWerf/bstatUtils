@@ -10,7 +10,8 @@ randomization_test(
   test_func,
   n_perm = 9999,
   alternative = c("two.sided", "one.sided"),
-  na_rm = FALSE
+  na_rm = FALSE,
+  ...
 )
 }
 \arguments{
@@ -32,6 +33,8 @@ Examples: \code{\link{one_way_anova_test}}, \code{\link[stats]{bartlett.test}},
 statistic to the median permutation statistic.}
 
 \item{na_rm}{Logical; if \code{TRUE}, remove missing values before calculation. Default: \code{FALSE}.}
+
+\item{...}{additional parameters for test_func}
 }
 \value{
 A list (invisibly) with three elements:

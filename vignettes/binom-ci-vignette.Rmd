@@ -1,0 +1,139 @@
+---
+title: "Binomial Confidence Intervals for Sensitivity and Other Proportions"
+output: rmarkdown::html_vignette
+bibliography: REFERENCES.bib
+vignette: >
+  %\VignetteIndexEntry{Binomial Confidence Intervals for Sensitivity and Other Proportions}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This vignette describes the binomial confidence-interval methods implemented in `bstatUtils` and shows how to use `binom_ci()` and `binom_ci_all()` in practice.
+
+The motivating example is diagnostic sensitivity, defined as the proportion of test-positive results among truly diseased subjects. The same methods apply directly to any single binomial proportion, including specificity, prevalence, response probability, or event risk.
+
+## Overview
+
+For `n` successes out of `N` observations, the estimated proportion is `n / N`. The package implements seven interval methods: Wald, Wilson, Clopper-Pearson, Agresti-Coull, Jeffreys, logit, and likelihood-ratio [@Wilson1927; @ClopperPearson1934; @AgrestiCoull1998; @BrownCaiDasGupta2001].
+
+These methods differ mainly in small-sample performance, behavior near 0 or 1, and whether the interval is symmetric or asymmetric on the probability scale. The Wald interval is easy to compute but is widely regarded as a poor default for small samples or extreme proportions, whereas Wilson and Jeffreys are commonly recommended as stronger general-purpose choices [@BrownCaiDasGupta2001].
+
+## Why several methods?
+
+No single interval is best in every setting.
+
+The Wald interval is simple, but it is well known to perform poorly for small samples or proportions near the boundaries [@BrownCaiDasGupta2001]. Wilson and Jeffreys are often stronger default choices, while Clopper-Pearson is commonly used when an exact binomial method is preferred [@BrownCaiDasGupta2001; @ClopperPearson1934]. Agresti-Coull is a simple adjusted approximation [@AgrestiCoull1998], and the logit and likelihood-ratio intervals provide asymmetric alternatives that can behave better near 0 or 1 [@BrownCaiDasGupta2001].
+
+## Implemented methods
+
+| Method | Main idea | Typical strengths | Main cautions |
+|:--|:--|:--|:--|
+| Wald | Normal approximation around `n / N` | Very simple and familiar | Often inaccurate for small `N` or extreme proportions [@BrownCaiDasGupta2001] |
+| Wilson | Score-test inversion | Strong general-purpose frequentist default [@Wilson1927; @BrownCaiDasGupta2001] | Slightly less transparent algebraically |
+| Clopper-Pearson | Exact binomial interval from beta quantiles | Valid at the boundaries, exact under the binomial model [@ClopperPearson1934] | Often conservative and wider than needed [@BrownCaiDasGupta2001] |
+| Agresti-Coull | Adjusted Wald interval using pseudo-counts | Simple and usually better than Wald [@AgrestiCoull1998] | Still approximate |
+| Jeffreys | Equal-tailed beta interval with Jeffreys prior | Good small-sample and boundary behavior [@BrownCaiDasGupta2001] | Bayesian derivation may not suit every reporting context |
+| Logit | Wald interval on the logit scale, then back-transform | Asymmetric and remains within `(0, 1)` | Needs boundary correction at `n = 0` or `n = N` |
+| Likelihood-ratio | Inverts the binomial likelihood-ratio test | Likelihood-based and often sensible near boundaries [@BrownCaiDasGupta2001] | More computationally intensive |
+
+## Functions
+
+The package provides two user-facing functions.
+
+- `binom_ci(n, N, method = "wilson", conf.level = 0.95, cc = 0.5)` computes one interval for one method.
+- `binom_ci_all(n, N, conf.level = 0.95, cc = 0.5)` computes all implemented methods for the same data.
+
+The `method` argument accepts the following values:
+
+```{r}
+c(
+  "wald",
+  "wilson",
+  "clopper-pearson",
+  "agresti-coull",
+  "jeffreys",
+  "logit",
+  "likelihood"
+)
+```
+
+The `cc` argument is used only by the logit method when `n = 0` or `n = N`. In those boundary cases, the ordinary logit is undefined, so a continuity correction is used before transforming to the logit scale.
+
+## Basic examples
+
+A single Wilson interval:
+
+```{r}
+library(bstatUtils)
+
+binom_ci(19, 20, method = "wilson")
+```
+
+A Clopper-Pearson interval for the same data:
+
+```{r}
+binom_ci(19, 20, method = "clopper-pearson")
+```
+
+All implemented methods at once:
+
+```{r}
+binom_ci_all(19, 20)
+```
+
+Each result is returned as a `data.frame` with the observed successes `n`, total `N`, point estimate `estimate`, method name, confidence level, and the lower and upper confidence limits.
+
+## Boundary cases
+
+Boundary cases deserve special attention because many interval methods behave differently when `n = 0` or `n = N` [@BrownCaiDasGupta2001].
+
+For example, the logit interval uses the continuity correction `cc` only at the boundaries:
+
+```{r}
+binom_ci(0, 10, method = "logit")
+binom_ci(10, 10, method = "logit")
+```
+
+The Clopper-Pearson interval handles the boundaries naturally:
+
+```{r}
+binom_ci(0, 10, method = "clopper-pearson")
+binom_ci(10, 10, method = "clopper-pearson")
+```
+
+## Choosing a method
+
+A practical default is Wilson when a frequentist interval is wanted and no special requirement points elsewhere [@BrownCaiDasGupta2001; @Wilson1927].
+
+Jeffreys is a strong alternative when small-sample performance and boundary behavior are especially important [@BrownCaiDasGupta2001]. Clopper-Pearson is appropriate when an exact interval is required by convention, regulation, or reporting policy, keeping in mind that it is usually conservative [@ClopperPearson1934; @BrownCaiDasGupta2001]. Agresti-Coull is a simple adjusted approximation [@AgrestiCoull1998], while logit and likelihood-ratio intervals are useful when asymmetric limits are preferred.
+
+For routine reporting, the Wald interval is usually best treated as a benchmark rather than a recommended default [@BrownCaiDasGupta2001].
+
+## Input validation
+
+The functions check that:
+
+- `n` is a single non-missing integer-like numeric value,
+- `N` is a single positive integer-like numeric value,
+- `0 <= n <= N`,
+- `conf.level` lies strictly between 0 and 1,
+- `cc >= 0`.
+
+Examples of invalid inputs:
+
+```{r, error = TRUE}
+binom_ci(11, 10, method = "wilson")
+```
+
+```{r, error = TRUE}
+binom_ci(1.5, 10, method = "wilson")
+```
+
+## References {-}
